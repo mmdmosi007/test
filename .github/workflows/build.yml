@@ -1,4 +1,5 @@
 name: Build_Finder_APK
+
 on:
   workflow_dispatch:
 
@@ -7,26 +8,36 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      USER: root
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: "true"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup environment dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-11-jdk zip adb libncurses5
-          python3 -m pip install --upgrade pip
-          pip install --break-system-packages buildozer
+          sudo apt-get install -y \
+            openjdk-11-jdk \
+            python3-venv \
+            zip \
+            unzip \
+            git \
+            libffi-dev \
+            libssl-dev
 
-      - name: Build APK with Buildozer
+      - name: Create virtual environment
         run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install buildozer cython
+
+      - name: Build APK
+        run: |
+          source venv/bin/activate
           buildozer android debug
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Finder-APK
