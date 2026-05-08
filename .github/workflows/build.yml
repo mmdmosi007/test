@@ -1,10 +1,9 @@
 name: Build_Finder_APK
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:   # اجرای دستی از داخل Actions
 
 jobs:
-  
   build:
     runs-on: ubuntu-22.04
 
@@ -27,53 +26,43 @@ jobs:
       - name: Install Android SDK + NDK
         run: |
           sudo mkdir -p /opt/android-sdk
-          sudo mkdir -p /opt/android-ndk
           cd /opt/android-sdk
-
           sudo wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
           sudo unzip tools.zip
           sudo mkdir -p /opt/android-sdk/cmdline-tools/latest
           sudo mv cmdline-tools/* /opt/android-sdk/cmdline-tools/latest/ || true
-
+          
           export ANDROID_SDK_ROOT=/opt/android-sdk
           export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
-
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
-
-          # ✅ ساخت مسیر قدیمی برای هماهنگی با Buildozer
+          
+          # مسیر سازگار برای buildozer
           sudo mkdir -p /opt/android-sdk/tools/bin
           sudo ln -s /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager /opt/android-sdk/tools/bin/sdkmanager
 
       - name: Install System Deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            git zip unzip build-essential \
-            libffi-dev libssl-dev \
-            libncurses6 libncurses-dev \
-            zlib1g-dev libsqlite3-dev \
-            libbz2-dev libreadline-dev liblzma-dev
+          sudo apt-get install -y git zip unzip build-essential \
+            libffi-dev libssl-dev libncurses6 libncurses-dev \
+            zlib1g-dev libsqlite3-dev libbz2-dev libreadline-dev liblzma-dev
 
       - name: Create virtual environment and install Buildozer
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip setuptools wheel
-          # نسخه‌های سازگار
-          # نسخه‌های سازگار + نسخه جدید p4a از GitHub (کاملاً لازم)
           pip install cython==0.29.36 buildozer kivy==2.2.1 pyjnius
-    
           pip install "git+https://github.com/kivy/python-for-android.git"
 
       - name: Build APK
         run: |
           source venv/bin/activate
-          
           unset ANDROID_NDK_HOME
           unset ANDROID_NDK_ROOT
           export ANDROIDAPI=33
-          export NDKAPI=21 
+          export NDKAPI=21
           export ANDROIDSDK=/opt/android-sdk
           export ANDROID_HOME=/opt/android-sdk
           export ANDROID_SDK_ROOT=/opt/android-sdk
@@ -81,12 +70,17 @@ jobs:
 
           buildozer -v android debug
 
-          
-
-      - name: Upload file to GitHub Release
-        uses: softprops/action-gh-release@v1
+      # ✅ مرحله جدید: آپلود فایل خروجی به Release
+      - name: Upload APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: success()
         with:
-          tag_name: ${{ steps.vars.outputs.tag }}
-          files: ${{ steps.buildozer.outputs.filename }}
+          tag_name: auto-build
+          name: Auto Build APK
+          body: |
+            🔹 Build generated automatically by GitHub Actions  
+            🔹 Triggered manually by مصی  
+          files: |
+            bin/*.apk
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
