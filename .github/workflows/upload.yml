@@ -1,52 +1,60 @@
-name: Upload APK to Punkpaste
+name: Upload Finder‑APK to Punkpaste
 
 on:
-  workflow_dispatch:  # یعنی دستی اجرا می‌کنی از تب Actions
+  workflow_dispatch: # دستی اجرا کن
 
 jobs:
-  upload_file:
+  upload_apk:
     runs-on: ubuntu-latest
     steps:
-      # گام اول: checkout سورس‌کد
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download Finder‑APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Finder-APK
+          run-id: 25566188102       # ID اجرای build قبلی
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # گام دوم: پیدا کردن فایل APK (می‌تونی مسیر رو تغییر بدی)
-      - name: Find APK file
+      - name: List downloaded files
         run: |
-          echo "فایل‌های موجود:"
           ls -lh
-          FILE=$(find . -name "*.apk" | head -n 1)
-          echo "فایل انتخاب‌شده: $FILE"
-          echo "FILE_PATH=$FILE" >> $GITHUB_ENV
+          APK_PATH=$(find . -name "*.apk" | head -n 1)
+          echo "📦 فایل انتخاب‌شده: $APK_PATH"
+          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
 
-      # گام سوم: شروع آپلود
       - name: Init upload session
         id: init
         run: |
-          RESP=$(curl -s -X POST https://punkpaste.ir/upload/init)
+          echo "در حال ایجاد جلسه آپلود در punkpaste.ir ..."
+          RESP=$(curl -s -m 20 -X POST https://punkpaste.ir/upload/init \
+            --insecure \
+            -H "Content-Type: application/json" \
+            -d '{}' )
+          echo "📥 پاسخ سرور: $RESP"
           UUID=$(echo $RESP | jq -r '.uuid')
-          echo "شناسه فایل: $UUID"
+          if [ -z "$UUID" ] || [ "$UUID" == "null" ]; then
+            echo "❌ شناسه فایل پیدا نشد"
+            exit 1
+          fi
+          echo "✅ شناسه فایل: $UUID"
           echo "UUID=$UUID" >> $GITHUB_ENV
 
-      # گام چهارم: ارسال فایل chunk
-      - name: Upload chunk (single)
+      - name: Upload the APK chunk
         run: |
           curl -X POST "https://punkpaste.ir/upload/chunk/${{ env.UUID }}?index=0" \
-            -F "chunk=@${{ env.FILE_PATH }}" \
+            --insecure \
+            -F "chunk=@${{ env.APK_PATH }}" \
             -o chunk_result.json
           cat chunk_result.json
 
-      # گام پنجم: اعلام پایان آپلود
       - name: Complete upload
         run: |
           curl -X POST "https://punkpaste.ir/upload/complete/${{ env.UUID }}" \
+            --insecure \
             -H "Content-Type: application/json" \
             -o upload_done.json
           cat upload_done.json
 
-      # گام ششم: چاپ لینک خروجی
-      - name: Get final link
+      - name: Print final link
         run: |
           LINK=$(grep -o 'https://punkpaste.ir/f/[a-zA-Z0-9_-]*' upload_done.json || true)
           echo "🔗 لینک نهایی فایل شما: $LINK"
