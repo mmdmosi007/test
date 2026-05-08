@@ -1,29 +1,30 @@
 name: Build_Finder_APK
-
 on:
   workflow_dispatch:
 
 jobs:
   build-android:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
-
     env:
       USER: root
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: "true"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup environment dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jdk zip adb libncurses5
+          python3 -m pip install --upgrade pip
+          pip install --break-system-packages buildozer
+
       - name: Build APK with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        with:
-          workdir: .
-          buildozer_version: stable
-          command: buildozer android debug
+        run: |
+          buildozer android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
