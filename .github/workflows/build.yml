@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  
   build:
     runs-on: ubuntu-22.04
 
@@ -54,20 +55,29 @@ jobs:
             zlib1g-dev libsqlite3-dev \
             libbz2-dev libreadline-dev liblzma-dev
 
-      - name: Install Buildozer
+      - name: Create virtual environment and install Buildozer
         run: |
           python -m venv venv
           source venv/bin/activate
-          pip install --upgrade pip
-          pip install cython buildozer
+          pip install --upgrade pip setuptools wheel
+          # نسخه‌های سازگار
+          pip install "cython==0.29.36" "buildozer" \
+                      "python-for-android>=2024.3.1" "kivy==2.2.1" "pyjnius>=1.6.1"
 
       - name: Build APK
         run: |
           source venv/bin/activate
+          
+          unset ANDROID_NDK_HOME
+          unset ANDROID_NDK_ROOT
           export ANDROIDSDK=/opt/android-sdk
           export ANDROID_HOME=/opt/android-sdk
-          export ANDROID_NDK_HOME=/opt/android-ndk
+          export ANDROID_SDK_ROOT=/opt/android-sdk
+          export ANDROIDNDK=/opt/android-sdk/ndk/25.1.8937393
+
           buildozer -v android debug
+
+          
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
