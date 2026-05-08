@@ -1,0 +1,15 @@
+name: UploadGirl Auto Upload
+
+on:
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Upload file to UploadGirl
+        run: |
+          bash uploadgirl.sh "dist/output.html"
