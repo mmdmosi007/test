@@ -25,15 +25,13 @@ jobs:
           sudo apt-get install -y \
             openjdk-11-jdk \
             python3-venv \
-            zip \
-            unzip \
-            git \
-            libffi-dev \
-            libssl-dev \
-            libncurses6 \
-            libncurses-dev \
-            zlib1g-dev \
-            libsqlite3-dev
+            zip unzip git \
+          build-essential \
+          libffi-dev libssl-dev \
+          libncurses6 libncurses-dev \
+          zlib1g-dev libsqlite3-dev \
+          libbz2-dev libreadline-dev \
+          liblzma-dev
 
       - name: Create virtual environment
         run: |
