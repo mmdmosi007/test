@@ -25,6 +25,7 @@ jobs:
         id: init
         run: |
           echo "در حال ایجاد جلسه آپلود در punkpaste.ir ..."
+          BODY='{"chunks":1,"fileName":"Finder.apk","type":"application/vnd.android.package-archive"}'
           RESP=$(curl -s -m 20 -X POST https://punkpaste.ir/upload/init \
             --insecure \
             -H "Content-Type: application/json" \
