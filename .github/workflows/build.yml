@@ -13,6 +13,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 🔥 Python 3.10 (مهم‌ترین بخش)
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -23,7 +29,11 @@ jobs:
             unzip \
             git \
             libffi-dev \
-            libssl-dev
+            libssl-dev \
+            libncurses6 \
+            libncurses-dev \
+            zlib1g-dev \
+            libsqlite3-dev
 
       - name: Create virtual environment
         run: |
@@ -42,3 +52,4 @@ jobs:
         with:
           name: Finder-APK
           path: bin/*.apk
+
