@@ -1,17 +1,16 @@
 name: Build_Finder_APK
 
 on:
-  workflow_dispatch:   # اجرای دستی از داخل Actions
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  build_apk:
     runs-on: ubuntu-22.04
 
     steps:
-
       - uses: actions/checkout@v4
 
       - name: Setup Python 3.10
@@ -25,7 +24,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ✅ نصب Android SDK + NDK
       - name: Install Android SDK + NDK
         run: |
           sudo mkdir -p /opt/android-sdk
@@ -34,13 +32,12 @@ jobs:
           sudo unzip tools.zip
           sudo mkdir -p /opt/android-sdk/cmdline-tools/latest
           sudo mv cmdline-tools/* /opt/android-sdk/cmdline-tools/latest/ || true
-          
+
           export ANDROID_SDK_ROOT=/opt/android-sdk
           export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
-          
-          # مسیر سازگار برای buildozer
+
           sudo mkdir -p /opt/android-sdk/tools/bin
           sudo ln -s /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager /opt/android-sdk/tools/bin/sdkmanager
 
@@ -54,14 +51,14 @@ jobs:
       - name: Create virtual environment and install Buildozer
         run: |
           python -m venv venv
-          source venv/bin/activate
+          . venv/bin/activate
           pip install --upgrade pip setuptools wheel
           pip install cython==0.29.36 buildozer kivy==2.2.1 pyjnius
           pip install "git+https://github.com/kivy/python-for-android.git"
 
       - name: Build APK
         run: |
-          source venv/bin/activate
+          . venv/bin/activate
           unset ANDROID_NDK_HOME
           unset ANDROID_NDK_ROOT
           export ANDROIDAPI=33
@@ -70,20 +67,34 @@ jobs:
           export ANDROID_HOME=/opt/android-sdk
           export ANDROID_SDK_ROOT=/opt/android-sdk
           export ANDROIDNDK=/opt/android-sdk/ndk/25.1.8937393
-
           buildozer -v android debug
 
-      # ✅ مرحله جدید: آپلود فایل خروجی به Release
-      - name: Upload APK to GitHub Release
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-apk
+          path: bin/*.apk
+
+  release_apk:
+    needs: build_apk
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: built-apk
+          path: release-files
+
+      - name: Create GitHub Release and upload APK
         uses: softprops/action-gh-release@v2
-        if: success()
         with:
           tag_name: auto-build
           name: Auto Build APK
           body: |
-            🔹 Build generated automatically by GitHub Actions  
-            🔹 Triggered manually by مصی  
+            Build generated automatically by GitHub Actions
+            Triggered manually
           files: |
-            bin/*.apk
+            release-files/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
