@@ -7,13 +7,13 @@ title = V2RayFinder
 package.name = V2RayFinderApp
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test
+package.domain = org.MmdMosi007
 
 # (str) Source code where the main.py live
 source.dir = .
 
 les to include (let empty to inclu# (list) Source fide all the files)
-source.include_exts = py,png,jpg,kv,atlas,
+source.include_exts = py,png,jpg,kv,atlas
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = assets/*,images/*.png
@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,requests,beautifulsoup4,bs4,re,time,threading,sys
+requirements = python3,kivy,requests,beautifulsoup4,bs4,re,time,threading
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -100,16 +100,19 @@ android.permissions = INTERNET
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-#android.api = 33
+# android.api = 33
+android.api
 
 # (int) Minimum API your APK / AAB will support.
 #android.minapi = 21
+android.minapi = 21
 
 # (int) Android SDK version to use
 #android.sdk = 20
 
 # (str) Android NDK version to use
 #android.ndk = 23b
+android.ndk = 25b
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
 #android.ndk_api = 21
