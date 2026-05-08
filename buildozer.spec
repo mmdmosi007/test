@@ -12,8 +12,8 @@ package.domain = org.MmdMosi007
 # (str) Source code where the main.py live
 source.dir = .
 
-les to include (let empty to inclu# (list) Source fide all the files)
-source.include_exts = py,png,jpg,kv,atlas
+# (list) Source files to include (let empty to include all the files)
+source.include_exts = py,png,jpg,kv,atlas,txt
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = assets/*,images/*.png
@@ -101,7 +101,7 @@ android.permissions = INTERNET
 
 # (int) Target Android API, should be as high as possible.
 # android.api = 33
-android.api
+android.api = 33
 
 # (int) Minimum API your APK / AAB will support.
 #android.minapi = 21
