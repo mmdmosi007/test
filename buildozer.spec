@@ -122,9 +122,11 @@ android.ndk = 25b
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
 #android.ndk_path =
+android.ndk_path = /opt/android-ndk
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
 #android.sdk_path =
+android.sdk_path = /opt/android-sdk
 
 # (str) ANT directory (if empty, it will be automatically downloaded.)
 #android.ant_path =
@@ -139,6 +141,7 @@ android.ndk = 25b
 # the default, you will be shown the license when first running
 # buildozer.
 # android.accept_sdk_license = False
+android.accept_sdk_license = True
 
 # (str) Android entry point, default is ok for Kivy-based app
 #android.entrypoint = org.kivy.android.PythonActivity
