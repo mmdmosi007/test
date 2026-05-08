@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,requests,bs4,beautifulsoup4,threading,time,re,sys,gmtime
+requirements = python3,kivy,requests,bs4,beautifulsoup4
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -122,11 +122,11 @@ android.ndk = 25b
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
 #android.ndk_path =
-android.ndk_path = /opt/android-ndk
+android.ndk_path = /opt/android-sdk/ndk/25.1.8937393
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
 #android.sdk_path =
-android.ndk_path = /opt/android-sdk/ndk/25.1.8937393
+android.sdk_path = /opt/android-sdk
 
 # (str) ANT directory (if empty, it will be automatically downloaded.)
 #android.ant_path =
