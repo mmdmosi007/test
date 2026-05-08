@@ -22,34 +22,33 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Android SDK + NDK manually
+      # ✅ نصب Android SDK + NDK
+      - name: Install Android SDK + NDK
         run: |
           sudo mkdir -p /opt/android-sdk
           sudo mkdir -p /opt/android-ndk
-          
           cd /opt/android-sdk
 
           sudo wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
           sudo unzip tools.zip
-          
           sudo mkdir -p /opt/android-sdk/cmdline-tools/latest
           sudo mv cmdline-tools/* /opt/android-sdk/cmdline-tools/latest/ || true
 
           export ANDROID_SDK_ROOT=/opt/android-sdk
-          export ANDROID_HOME=/opt/android-sdk
           export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
 
           yes | sdkmanager --licenses
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-33"
-          sdkmanager "build-tools;33.0.2"
-          sdkmanager "ndk;25.1.8937393"
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
 
-      - name: Install System Dependencies
+          # ✅ ساخت مسیر قدیمی برای هماهنگی با Buildozer
+          sudo mkdir -p /opt/android-sdk/tools/bin
+          sudo ln -s /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager /opt/android-sdk/tools/bin/sdkmanager
+
+      - name: Install System Deps
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential git zip unzip \
+            git zip unzip build-essential \
             libffi-dev libssl-dev \
             libncurses6 libncurses-dev \
             zlib1g-dev libsqlite3-dev \
@@ -62,17 +61,16 @@ jobs:
           pip install --upgrade pip
           pip install cython buildozer
 
-      - name: Clean Buildozer old caches
+      # 💣 حذف کش‌های قبلی
+      - name: Clean Buildozer Cache
         run: rm -rf .buildozer
 
       - name: Build APK
         run: |
           source venv/bin/activate
-
           export ANDROIDSDK=/opt/android-sdk
-          export ANDROID_NDK_HOME=/opt/android-ndk
           export ANDROID_HOME=/opt/android-sdk
-
+          export ANDROID_NDK_HOME=/opt/android-ndk
           buildozer -v android debug
 
       - name: Upload APK
