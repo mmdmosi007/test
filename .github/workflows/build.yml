@@ -3,6 +3,9 @@ name: Build_Finder_APK
 on:
   workflow_dispatch:   # اجرای دستی از داخل Actions
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-22.04
