@@ -1,0 +1,52 @@
+name: Upload APK to Punkpaste
+
+on:
+  workflow_dispatch:  # یعنی دستی اجرا می‌کنی از تب Actions
+
+jobs:
+  upload_file:
+    runs-on: ubuntu-latest
+    steps:
+      # گام اول: checkout سورس‌کد
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # گام دوم: پیدا کردن فایل APK (می‌تونی مسیر رو تغییر بدی)
+      - name: Find APK file
+        run: |
+          echo "فایل‌های موجود:"
+          ls -lh
+          FILE=$(find . -name "*.apk" | head -n 1)
+          echo "فایل انتخاب‌شده: $FILE"
+          echo "FILE_PATH=$FILE" >> $GITHUB_ENV
+
+      # گام سوم: شروع آپلود
+      - name: Init upload session
+        id: init
+        run: |
+          RESP=$(curl -s -X POST https://punkpaste.ir/upload/init)
+          UUID=$(echo $RESP | jq -r '.uuid')
+          echo "شناسه فایل: $UUID"
+          echo "UUID=$UUID" >> $GITHUB_ENV
+
+      # گام چهارم: ارسال فایل chunk
+      - name: Upload chunk (single)
+        run: |
+          curl -X POST "https://punkpaste.ir/upload/chunk/${{ env.UUID }}?index=0" \
+            -F "chunk=@${{ env.FILE_PATH }}" \
+            -o chunk_result.json
+          cat chunk_result.json
+
+      # گام پنجم: اعلام پایان آپلود
+      - name: Complete upload
+        run: |
+          curl -X POST "https://punkpaste.ir/upload/complete/${{ env.UUID }}" \
+            -H "Content-Type: application/json" \
+            -o upload_done.json
+          cat upload_done.json
+
+      # گام ششم: چاپ لینک خروجی
+      - name: Get final link
+        run: |
+          LINK=$(grep -o 'https://punkpaste.ir/f/[a-zA-Z0-9_-]*' upload_done.json || true)
+          echo "🔗 لینک نهایی فایل شما: $LINK"
