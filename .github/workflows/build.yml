@@ -61,8 +61,10 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip setuptools wheel
           # نسخه‌های سازگار
-          pip install "cython==0.29.36" "buildozer" \
-                      "python-for-android>=2024.3.1" "kivy==2.2.1" "pyjnius>=1.6.1"
+          # نسخه‌های سازگار + نسخه جدید p4a از GitHub (کاملاً لازم)
+          pip install cython==0.29.36 buildozer kivy==2.2.1 pyjnius
+    
+          pip install "git+https://github.com/kivy/python-for-android.git"
 
       - name: Build APK
         run: |
@@ -70,6 +72,8 @@ jobs:
           
           unset ANDROID_NDK_HOME
           unset ANDROID_NDK_ROOT
+          export ANDROIDAPI=33
+          export NDKAPI=21 
           export ANDROIDSDK=/opt/android-sdk
           export ANDROID_HOME=/opt/android-sdk
           export ANDROID_SDK_ROOT=/opt/android-sdk
