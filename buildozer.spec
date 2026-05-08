@@ -126,7 +126,7 @@ android.ndk_path = /opt/android-ndk
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
 #android.sdk_path =
-android.sdk_path = /opt/android-sdk
+android.ndk_path = /opt/android-sdk/ndk/25.1.8937393
 
 # (str) ANT directory (if empty, it will be automatically downloaded.)
 #android.ant_path =
